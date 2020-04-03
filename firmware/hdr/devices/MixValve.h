@@ -24,9 +24,11 @@
 #ifndef DEVICES_MIXVALVE_H_
 #define DEVICES_MIXVALVE_H_
 
-#include "../driver/Stepper.h"
+#include "../driver/WrapperStepper.h"
 
-class MixValve : public Stepper {
+class MixValve : public WrapperStepper {
+private:
+	long last_value;
 public:
 	MixValve();
 	virtual ~MixValve();

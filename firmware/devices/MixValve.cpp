@@ -25,12 +25,27 @@
 #include "../hdr/hardware.h"
 #include "../hdr/defines.h"
 
-MixValve::MixValve() : Stepper(STEPPER_MIX_PIN_ENABLE,STEPPER_MIX_MOTOR_IFACE, STEPPER_MIX_STEP_PIN, STEPPER_MIX_DIR_PIN){
+MixValve::MixValve() :
+#ifdef WRAPPER_AccelStepper
+WrapperStepper(STEPPER_MIX_PIN_ENABLE,STEPPER_MIX_MOTOR_IFACE, STEPPER_MIX_STEP_PIN, STEPPER_MIX_DIR_PIN)
+#endif
+#ifdef WRAPPER_Stepper
+	WrapperStepper(STEPPER_MIX_PIN_ENABLE,STEPPER_MIX_INI1_PIN, STEPPER_MIX_INI2_PIN, STEPPER_MIX_INI3_PIN,STEPPER_MIX_INI4_PIN)
+#endif
+{
+	last_value=0;
 }
 
 MixValve::~MixValve() {
 }
 
 void MixValve::setPressure(double value) {
+#ifdef WRAPPER_AccelStepper
 	setMotorPosition((value*STEPPER_MAX_VALUE)/MAX_MIX_PRESSURE);
+#endif
+#ifdef WRAPPER_Stepper
+	long _value = ((value*STEPPER_MAX_VALUE)/MAX_MIX_PRESSURE);
+	setMotorPosition(_value-last_value);
+	last_value = _value;
+#endif
 }

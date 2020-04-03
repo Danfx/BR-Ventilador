@@ -24,24 +24,39 @@
 #ifndef STEPPER_H_
 #define STEPPER_H_
 
-#include <AccelStepper.h>
 #include "../hardware.h"
+#ifdef WRAPPER_AccelStepper
+#include <AccelStepper.h>
+#endif
+#ifdef WRAPPER_Stepper
+#include <Stepper.h>
+#endif
 
-class Stepper {
+class WrapperStepper {
 protected:
 	typedef enum {
 		DISABLE=STEPPER_DISABLE,
 		ENABLE=STEPPER_ENABLE
 	} stepper_enable_t;
 protected:
+#ifdef WRAPPER_AccelStepper
 	AccelStepper stepper;
+#endif
+#ifdef WRAPPER_Stepper
+	Stepper stepper;
+#endif
 	uint8_t pin_enable;
 protected:
-	void setMotorPosition(double position);
+	void setMotorPosition(long position);
 	void setEnable(stepper_enable_t se);
 public:
-	Stepper(uint8_t _pin_enable,uint8_t interface = AccelStepper::FULL4WIRE, uint8_t pin1 = 2, uint8_t pin2 = 3, uint8_t pin3 = 4, uint8_t pin4 = 5, bool enable = true);
-	virtual ~Stepper();
+#ifdef WRAPPER_AccelStepper
+	WrapperStepper(uint8_t _pin_enable,uint8_t interface = AccelStepper::FULL4WIRE, uint8_t pin1 = 2, uint8_t pin2 = 3, uint8_t pin3 = 4, uint8_t pin4 = 5, bool enable = true);
+#endif
+#ifdef WRAPPER_Stepper
+	WrapperStepper(uint8_t _pin_enable,uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4);
+#endif
+	virtual ~WrapperStepper();
 	void begin();
 	void close();
 	virtual void setPressure(double value)=0;

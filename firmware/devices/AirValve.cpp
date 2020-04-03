@@ -25,12 +25,27 @@
 #include "../hdr/hardware.h"
 #include "../hdr/defines.h"
 
-AirValve::AirValve() : Stepper(STEPPER_AIR_PIN_ENABLE,STEPPER_AIR_MOTOR_IFACE, STEPPER_AIR_STEP_PIN, STEPPER_AIR_DIR_PIN){
+AirValve::AirValve() :
+#ifdef WRAPPER_AccelStepper
+	WrapperStepper(STEPPER_AIR_PIN_ENABLE,STEPPER_AIR_MOTOR_IFACE, STEPPER_AIR_STEP_PIN, STEPPER_AIR_DIR_PIN)
+#endif
+#ifdef WRAPPER_Stepper
+	WrapperStepper(STEPPER_AIR_PIN_ENABLE,STEPPER_AIR_INI1_PIN, STEPPER_AIR_INI2_PIN, STEPPER_AIR_INI3_PIN,STEPPER_AIR_INI4_PIN)
+#endif
+{
+	last_value=0;
 }
 
 AirValve::~AirValve() {
 }
 
 void AirValve::setPressure(double value) {
+#ifdef WRAPPER_AccelStepper
 	setMotorPosition((value*STEPPER_MAX_VALUE)/NETWORK_AIR_PRESSURE);
+#endif
+#ifdef WRAPPER_Stepper
+	long _value = ((value*STEPPER_MAX_VALUE)/NETWORK_AIR_PRESSURE);
+	setMotorPosition(_value-last_value);
+	last_value = _value;
+#endif
 }

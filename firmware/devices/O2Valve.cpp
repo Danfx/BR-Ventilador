@@ -25,12 +25,27 @@
 #include "../hdr/hardware.h"
 #include "../hdr/defines.h"
 
-O2Valve::O2Valve() : Stepper(STEPPER_O2_PIN_ENABLE,STEPPER_O2_MOTOR_IFACE, STEPPER_O2_STEP_PIN, STEPPER_O2_DIR_PIN){
+O2Valve::O2Valve() :
+#ifdef WRAPPER_AccelStepper
+	WrapperStepper(STEPPER_O2_PIN_ENABLE,STEPPER_O2_MOTOR_IFACE, STEPPER_O2_STEP_PIN, STEPPER_O2_DIR_PIN)
+#endif
+#ifdef WRAPPER_Stepper
+	WrapperStepper(STEPPER_O2_PIN_ENABLE,STEPPER_O2_INI1_PIN, STEPPER_O2_INI2_PIN, STEPPER_O2_INI3_PIN,STEPPER_O2_INI4_PIN)
+#endif
+{
+	last_value=0;
 }
 
 O2Valve::~O2Valve() {
 }
 
 void O2Valve::setPressure(double value) {
+#ifdef WRAPPER_AccelStepper
 	setMotorPosition((value*STEPPER_MAX_VALUE)/NETWORK_O2_PRESSURE);
+#endif
+#ifdef WRAPPER_Stepper
+	long _value = ((value*STEPPER_MAX_VALUE)/NETWORK_O2_PRESSURE);
+	setMotorPosition(_value-last_value);
+	last_value = _value;
+#endif
 }

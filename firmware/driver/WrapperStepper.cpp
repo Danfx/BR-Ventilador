@@ -21,36 +21,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../hdr/driver/Stepper.h"
+#include "../hdr/driver/WrapperStepper.h"
 #include "../hdr/hardware.h"
 
-Stepper::Stepper(uint8_t _pin_enable,uint8_t interface, uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, bool enable):
+
+#ifdef WRAPPER_AccelStepper
+WrapperStepper::WrapperStepper(uint8_t _pin_enable,uint8_t interface, uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, bool enable):
 		stepper(interface,pin1,pin2,pin3,pin4,enable)
+#endif
+#ifdef WRAPPER_Stepper
+WrapperStepper::WrapperStepper(uint8_t _pin_enable,uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4):
+		stepper(STEPPER_PER_REVOLUTION,pin1,pin3,pin2,pin4)
+#endif
 {
 	pin_enable = _pin_enable;
 }
 
-Stepper::~Stepper() {
+WrapperStepper::~WrapperStepper() {
 }
 
-void Stepper::begin() {
+void WrapperStepper::begin() {
 	pinMode(pin_enable, OUTPUT);
+#ifdef WRAPPER_AccelStepper
 	stepper.setMaxSpeed(STEPPER_MAX_SPEED);
 	stepper.setAcceleration(STEPPER_MAX_ACCELERATION);
+#endif
+#ifdef WRAPPER_Stepper
+	stepper.setSpeed(STEPPER_MAX_SPEED);
+#endif
 	close();
 }
 
-void Stepper::close(){
+void WrapperStepper::close(){
 	setPressure(0);
 }
 
-void Stepper::setMotorPosition(double position){
-	setEnable(Stepper::ENABLE);
+void WrapperStepper::setMotorPosition(long position){
+	setEnable(WrapperStepper::ENABLE);
+#ifdef WRAPPER_AccelStepper
 	stepper.moveTo(position);
 	stepper.runToPosition();
-	setEnable(Stepper::DISABLE);
+#endif
+#ifdef WRAPPER_Stepper
+	Serial.println(position);
+	stepper.step(position);
+#endif
+	setEnable(WrapperStepper::DISABLE);
 }
 
-void Stepper::setEnable(stepper_enable_t se){
+void WrapperStepper::setEnable(stepper_enable_t se){
 	digitalWrite(pin_enable,(uint8_t)se);
 }

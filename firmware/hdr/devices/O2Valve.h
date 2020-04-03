@@ -24,9 +24,11 @@
 #ifndef O2VALVE_H_
 #define O2VALVE_H_
 
-#include "../driver/Stepper.h"
+#include "../driver/WrapperStepper.h"
 
-class O2Valve : public Stepper {
+class O2Valve : public WrapperStepper {
+private:
+	long last_value;
 public:
 	O2Valve();
 	virtual ~O2Valve();

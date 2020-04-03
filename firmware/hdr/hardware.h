@@ -48,16 +48,30 @@
 #define LCD_D6      		5
 #define LCD_D7      		4
 
+#define WRAPPER_AccelStepper
+//#define WRAPPER_Stepper
+
 //
-// DRV8825 Stepper Motor Driver
+// Stepper Motor Driver
 //
+#ifdef WRAPPER_AccelStepper
 #define STEPPER_ONE_STEP				400
 #define STEPPER_MAX_VALUE				(STEPPER_ONE_STEP*7) // o registro da no máximo 7 voltas
-#define STEPPER_MAX_SPEED				200
 #define STEPPER_MAX_ACCELERATION		50
+#define STEPPER_MAX_SPEED				200
+#endif
+
+#ifdef WRAPPER_Stepper
+#define STEPPER_PER_REVOLUTION			500
+#define STEPPER_MAX_VALUE				2048
+#define STEPPER_MAX_SPEED				60
+#endif
+
 #define STEPPER_ENABLE					1
 #define STEPPER_DISABLE					0
 
+
+#ifdef WRAPPER_AccelStepper
 //
 // O2 Valve Stepper Motor
 //
@@ -81,6 +95,39 @@
 #define STEPPER_MIX_STEP_PIN			41
 #define STEPPER_MIX_MOTOR_IFACE			AccelStepper::DRIVER
 #define STEPPER_MIX_PIN_ENABLE			43
+
+#endif
+
+#ifdef WRAPPER_Stepper
+//
+// O2 Valve Stepper Motor
+//
+#define STEPPER_O2_INI1_PIN				41
+#define STEPPER_O2_INI2_PIN				43
+#define STEPPER_O2_INI3_PIN				45
+#define STEPPER_O2_INI4_PIN				47
+#define STEPPER_O2_PIN_ENABLE			27
+
+//
+// Air Valve Stepper Motor
+//
+
+#define STEPPER_AIR_INI1_PIN			41
+#define STEPPER_AIR_INI2_PIN			43
+#define STEPPER_AIR_INI3_PIN			45
+#define STEPPER_AIR_INI4_PIN			47
+#define STEPPER_AIR_PIN_ENABLE			33
+
+//
+// Mix Valve Stepper Motor
+//
+#define STEPPER_MIX_INI1_PIN			41
+#define STEPPER_MIX_INI2_PIN			43
+#define STEPPER_MIX_INI3_PIN			45
+#define STEPPER_MIX_INI4_PIN			47
+#define STEPPER_MIX_PIN_ENABLE			43
+
+#endif
 
 //
 // Air Heater

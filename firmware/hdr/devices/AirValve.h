@@ -24,9 +24,11 @@
 #ifndef AIRVALVE_H_
 #define AIRVALVE_H_
 
-#include "../driver/Stepper.h"
+#include "../driver/WrapperStepper.h"
 
-class AirValve : public Stepper {
+class AirValve : public WrapperStepper {
+private:
+	long last_value;
 public:
 	AirValve();
 	virtual ~AirValve();
