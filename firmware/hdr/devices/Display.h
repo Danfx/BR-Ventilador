@@ -32,7 +32,7 @@ private:
 public:
 	Display();
 	void begin();
-	void printPressure(double press);
+	void printPressure(double press,int mode);
 };
 
 #endif /* DEVICES_DISPLAY_H_ */

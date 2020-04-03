@@ -30,11 +30,14 @@
 //
 // Control Buttons
 //
-#define PIN_BUTTON_START				2
-#define PIN_MODE_1						21
-#define PIN_MODE_2						20
-#define PIN_MODE_3						19
-#define PIN_MODE_4						18
+//#define PIN_BUTTON_START				2
+//#define PIN_MODE_1						21
+//#define PIN_MODE_2						20
+//#define PIN_MODE_3						19
+//#define PIN_MODE_4						18
+
+#define PIN_BUTTON_START				19
+#define PIN_MODE_1						20
 
 //
 // Display (Digital I/O)
@@ -55,8 +58,9 @@
 // Stepper Motor Driver
 //
 #ifdef WRAPPER_AccelStepper
-#define STEPPER_ONE_STEP				400
-#define STEPPER_MAX_VALUE				(STEPPER_ONE_STEP*7) // o registro da no máximo 7 voltas
+//#define STEPPER_ONE_STEP				400
+//#define STEPPER_MAX_VALUE				(STEPPER_ONE_STEP*7) // o registro da no máximo 7 voltas
+#define STEPPER_MAX_VALUE				600
 #define STEPPER_MAX_ACCELERATION		50
 #define STEPPER_MAX_SPEED				200
 #endif
@@ -146,7 +150,8 @@
 //
 // Flow Meter
 //
-#define PIN_FLOW_METER					D3
+#define PIN_FLOW_METER					A7
+#define VS_FLOW_METER					5	// Vs = 5.0 Vdc
 
 //
 // Pressure Sensor
@@ -158,8 +163,8 @@
 // Expiratory Membrane
 //
 #define PIN_EXP_MEMBRANE				45
-#define EX_MEMB_OPEN					23
-#define EX_MEMB_CLOSE					0
+#define EX_MEMB_OPEN					0
+#define EX_MEMB_CLOSE					23
 
 #define BUZZER							12
 #define LED								13

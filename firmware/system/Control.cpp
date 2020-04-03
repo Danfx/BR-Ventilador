@@ -94,6 +94,7 @@ void Control::begin(){
 	pinMode(PIN_BUTTON_START, INPUT_PULLUP);
 	started = (digitalRead(PIN_BUTTON_START) == VAL_STARTED);
 	attachInterrupt(digitalPinToInterrupt(PIN_BUTTON_START), bt_start_interrupt, FALLING);
+	attachInterrupt(digitalPinToInterrupt(PIN_MODE_1), bt_mode_1_interrupt, FALLING);
 }
 
 void Control::doTaskBtStart(){
@@ -101,7 +102,8 @@ void Control::doTaskBtStart(){
 }
 
 void Control::doTaskSetMode(uint8_t _mode){
-	mode = _mode;
+	mode = (mode==3) ? 0 : (mode+1);
+//	mode = _mode;
 }
 
 bool Control::isStarted() {

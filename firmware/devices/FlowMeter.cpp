@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 #include "../hdr/devices/FlowMeter.h"
+#include "../hdr/hardware.h"
 
 FlowMeter::FlowMeter() {
 }
@@ -30,5 +31,25 @@ FlowMeter::~FlowMeter() {
 }
 
 void FlowMeter::begin() {
+	pinMode(PIN_FLOW_METER, INPUT_PULLUP);
+}
 
+double FlowMeter::readFlow(){
+	double vOut = (analogRead(PIN_FLOW_METER)*5.0)/1024.0;
+	if( vOut > 0 && vOut <= 1 ){
+		return 0;
+	} else if( vOut <= 2.99 ){
+		return 25;
+	} else if( vOut <= 3.82 ){
+		return 50;
+	} else if( vOut <= 4.30 ){
+		return 75;
+	} else if( vOut <= 4.58 ){
+		return 100;
+	} else if( vOut <= 4.86 ){
+		return 150;
+	} else if( vOut <= 5 ){
+		return 200;
+	}
+	return 0;
 }

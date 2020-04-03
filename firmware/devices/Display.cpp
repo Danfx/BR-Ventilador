@@ -32,17 +32,23 @@ void Display::begin() {
 	lcd.begin(LCD_COLS,LCD_ROWS);
 }
 
-void Display::printPressure(double press){
+void Display::printPressure(double press,int mode){
 	char buffer[10];
+	press = press < 0 ? 0 : press;
 	dtostrf(press,2,2,buffer);
 	// Turn on the display:
 	lcd.display();
 	lcd.clear();
 	// Col 3 row 0
-	lcd.setCursor(3, 0);
-	lcd.print("PRESSAO:");
+	lcd.setCursor(1, 0);
+	lcd.print("PCV MODO: ");
+	lcd.setCursor(11, 0);
+	lcd.print(mode);
 	// Col 3 row 1
-	lcd.setCursor(3, 1);
+	lcd.setCursor(1, 1);
+	lcd.print("PRESSAO:");
+	// Col 3 row 2
+	lcd.setCursor(1, 2);
 	lcd.print(buffer);
-	lcd.print(" kPa");
+	lcd.print(" cmH2O");
 }

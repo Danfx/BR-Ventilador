@@ -138,24 +138,24 @@ void setup() {
 	//
 	// Mode 1 - BT 21
 	//
-	config[0].o2 = 1.5;		// 50%
-	config[0].air = 1.5;	// 50%
-	config[0].mix = 3.0;	// 3.0
-	config[0].ms = 5;		// 5 segs
+	config[0].o2 = 1.6;		// 50%
+	config[0].air = 1.6;	// 50%
+	config[0].mix = 3.5;	// 3.0
+	config[0].ms = 1;		// 5 segs
 	//
 	// Mode 2 - BT 20
 	//
 	config[1].o2 = 1;		// 25%
 	config[1].air = 3.0;	// 75%
 	config[1].mix = 4.0;	// 4.0
-	config[1].ms = 3;		// 3 segs
+	config[1].ms = 2;		// 3 segs
 	//
 	// Mode 3 - BT 19
 	//
 	config[2].o2 = 1.0;		// 100%
 	config[2].air = 0;		// 0%
 	config[2].mix = 1.0;	// 1.0
-	config[2].ms = 8;		// 8 segs
+	config[2].ms = 3;		// 8 segs
 	//
 	// Mode 4 - BT 18
 	//
@@ -179,9 +179,9 @@ void delayShowPressure(int segs){
 		press = pressSensor.readPressure();
 		// debug
 		Serial.print(F("Pressure: "));
-		Serial.println(press);
+		Serial.println((press<0?0:press));
 		// display
-		disp.printPressure(press);
+		disp.printPressure(press,ctrl.getMode());
 		// delay
 		delay(500);
 	}
@@ -189,8 +189,6 @@ void delayShowPressure(int segs){
 
 void loop() {
 
-	// Initial State
-	airValve.close();
 	o2Valve.close();
 	mixValve.close();
 	airHeater.setTurn(AirHeater::TURN_OFF);
@@ -207,7 +205,6 @@ void loop() {
 	airValve.setPressure(c->air);
 	mixValve.setPressure(c->mix);
 	airHeater.setTurn(AirHeater::TURN_ON);
-
 	state_t state = BREATHING_OUT_TO_IN;
 
 	// exec until machine stop
@@ -215,7 +212,7 @@ void loop() {
 		// state machine
 		switch(state){
 			case BREATHING_OUT_TO_IN:
-				delayShowPressure(c->ms);
+				delayShowPressure(c->ms*(1.5));
 				state = BREATHING_IN;
 			break;
 			case BREATHING_IN:

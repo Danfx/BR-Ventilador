@@ -31,6 +31,7 @@ public:
 	FlowMeter();
 	virtual ~FlowMeter();
 	void begin();
+	double readFlow();
 };
 
 #endif /* FLOWMETER_H_ */
