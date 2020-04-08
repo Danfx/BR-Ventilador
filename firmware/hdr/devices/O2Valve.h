@@ -33,6 +33,7 @@ public:
 	O2Valve();
 	virtual ~O2Valve();
 	void setPressure(double value);
+	void setPercent(double value);
 };
 
 #endif /* O2VALVE_H_ */

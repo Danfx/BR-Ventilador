@@ -35,21 +35,20 @@ void FlowMeter::begin() {
 }
 
 double FlowMeter::readFlow(){
+	double val = 0;
 	double vOut = (analogRead(PIN_FLOW_METER)*5.0)/1024.0;
-	if( vOut > 0 && vOut <= 1 ){
-		return 0;
-	} else if( vOut <= 2.99 ){
-		return 25;
+	if( vOut <= 2.99 ){
+		val = 12.563*vOut-12.563;
 	} else if( vOut <= 3.82 ){
-		return 50;
+		val = 30.12*vOut-65.06;
 	} else if( vOut <= 4.30 ){
-		return 75;
+		val = 52.083*vOut-148.96;
 	} else if( vOut <= 4.58 ){
-		return 100;
+		val = 89.286*vOut-308.93;
 	} else if( vOut <= 4.86 ){
-		return 150;
+		val = 178.57*vOut-717.86;
 	} else if( vOut <= 5 ){
-		return 200;
+		val = 357.14*vOut-1585.7;
 	}
-	return 0;
+	return val;
 }

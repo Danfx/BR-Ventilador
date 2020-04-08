@@ -41,7 +41,7 @@ O2Valve::~O2Valve() {
 
 void O2Valve::setPressure(double value) {
 #ifdef WRAPPER_AccelStepper
-	setMotorPosition((value*STEPPER_MAX_VALUE)/NETWORK_O2_PRESSURE);
+	setMotorPosition((value*NETWORK_O2_PRESSURE)/100);
 #endif
 #ifdef WRAPPER_Stepper
 	long _value = ((value*STEPPER_MAX_VALUE)/NETWORK_O2_PRESSURE);
@@ -49,3 +49,15 @@ void O2Valve::setPressure(double value) {
 	last_value = _value;
 #endif
 }
+
+void O2Valve::setPercent(double value) {
+#ifdef WRAPPER_AccelStepper
+	setMotorPosition((value*STEPPER_MAX_VALUE)/100);
+#endif
+#ifdef WRAPPER_Stepper
+	long _value = ((value*STEPPER_MAX_VALUE)/NETWORK_AIR_PRESSURE);
+	setMotorPosition(_value-last_value);
+	last_value = _value;
+#endif
+}
+

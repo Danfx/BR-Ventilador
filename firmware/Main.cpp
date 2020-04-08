@@ -78,12 +78,25 @@ Display disp;
 typedef struct {
 	double air;
 	double o2;
-	double mix;
-	int ms;
-} config_t;
+	double plim;
+	double peep;
+	int i_ms;
+	int e_ms;
+} config_pcv_t;
+
+typedef struct {
+	double air;
+	double o2;
+	double plim;
+	double peep;
+	double volume;
+	double fluxo;
+	int e_ms;
+} config_vcv_t;
 
 Control ctrl;
-config_t config[4];
+config_pcv_t config_pcv[4];
+config_vcv_t config_vcv[4];
 
 void setup() {
 #ifdef SERIAL_DEBUG_ENABLE
@@ -136,33 +149,29 @@ void setup() {
 	ctrl.begin();
 
 	//
-	// Mode 1 - BT 21
+	// Mode PCV
 	//
-	config[0].o2 = 1.6;		// 50%
-	config[0].air = 1.6;	// 50%
-	config[0].mix = 3.5;	// 3.0
-	config[0].ms = 1;		// 5 segs
+	config_pcv[0].o2 = 70;		// %
+	config_pcv[0].air = 50;		// %
+	config_pcv[0].plim = 15;	// cmH20
+	config_pcv[0].peep = 5;  	// cmH20
+	config_pcv[0].i_ms = 2000;	// milisegs
+	config_pcv[0].e_ms = 3000;	// milisegs
+
+	config_pcv[0].plim += config_pcv[0].peep;
+
 	//
-	// Mode 2 - BT 20
+	// Mode VCV
 	//
-	config[1].o2 = 1;		// 25%
-	config[1].air = 3.0;	// 75%
-	config[1].mix = 4.0;	// 4.0
-	config[1].ms = 2;		// 3 segs
-	//
-	// Mode 3 - BT 19
-	//
-	config[2].o2 = 1.0;		// 100%
-	config[2].air = 0;		// 0%
-	config[2].mix = 1.0;	// 1.0
-	config[2].ms = 3;		// 8 segs
-	//
-	// Mode 4 - BT 18
-	//
-	config[3].o2 = 1.7;		// 85%
-	config[3].air = 0.3;	// 15%
-	config[3].mix = 2.0;	// 2.0
-	config[3].ms = 4;		// 4 segs
+	config_vcv[0].o2 = 70;		// %
+	config_vcv[0].air = 50;		// %
+	config_vcv[0].plim = 15;	// cmH20
+	config_vcv[0].peep = 5;  	// cmH20
+	config_vcv[0].volume = 300;	// mL
+	config_vcv[0].fluxo = 15;	// L/Min
+	config_vcv[0].e_ms = 2000;	// milisegs
+
+	config_vcv[0].plim += config_vcv[0].peep;
 }
 
 typedef enum {
@@ -191,47 +200,96 @@ void loop() {
 
 	o2Valve.close();
 	mixValve.close();
-	airHeater.setTurn(AirHeater::TURN_OFF);
 	solValve.close();
 	expMembrane.open();
 
 	// wait for start machine
 	while(!ctrl.isStarted());
 
-	config_t *c = &config[ctrl.getMode()];
+	if( ctrl.getMode() == 0 ){ // PCV
+		Serial.println(F("Modo PCV"));
 
-	// set initial PCV state
-	o2Valve.setPressure(c->o2);
-	airValve.setPressure(c->air);
-	mixValve.setPressure(c->mix);
-	airHeater.setTurn(AirHeater::TURN_ON);
-	state_t state = BREATHING_OUT_TO_IN;
+		config_pcv_t *c = &config_pcv[0];
+		bool mixLimit = false;
 
-	// exec until machine stop
-	while(ctrl.isStarted()){
-		// state machine
-		switch(state){
-			case BREATHING_OUT_TO_IN:
-				delayShowPressure(c->ms*(1.5));
-				state = BREATHING_IN;
-			break;
-			case BREATHING_IN:
-				expMembrane.close();
-				solValve.open();
-				state = BREATHING_IN_TO_OUT;
-			break;
-			case BREATHING_IN_TO_OUT:
-				delayShowPressure(c->ms);
-				solValve.close();
-				expMembrane.open();
-				state = BREATHING_OUT;
-			break;
-			case BREATHING_OUT:
-				state = BREATHING_OUT_TO_IN;
-			break;
+		o2Valve.setPercent(c->o2);
+		airValve.setPercent(c->air);
+		expMembrane.close();
+
+		while(ctrl.isStarted()){
+			solValve.open();
+
+			double percent = 0;
+			double press = pressSensor.readPressure();
+			while( press < c->plim ){
+				if( percent < 100 && !mixLimit ){
+					percent += PCV_PERCENT_INCREMENT;
+					mixValve.setPercent(percent);
+				}
+				press = pressSensor.readPressure();
+			}
+			solValve.close();
+			mixLimit = true;
+			delay(c->i_ms);
+
+			expMembrane.open();
+			press = pressSensor.readPressure();
+			while( press > c->peep ){
+				press = pressSensor.readPressure();
+			}
+
+			expMembrane.close();
+			delay(c->e_ms);
+		}
+	} else { // VCV
+		Serial.println(F("Modo VCV"));
+
+		config_vcv_t *c = &config_vcv[0];
+		unsigned long t,ti;
+		bool mixLimit = false;
+
+		ti = ((6*c->volume)/(100*c->fluxo))*1000; // ms
+
+		o2Valve.setPercent(c->o2);
+		airValve.setPercent(c->air);
+		expMembrane.close();
+
+		while(ctrl.isStarted()){
+			solValve.open();
+
+			t = millis();
+			double percent = 0;
+			double flow = flowMeter.readFlow();
+			double press = pressSensor.readPressure();
+
+			while( flow < c->fluxo && press < c->plim ){
+				if( percent < 100 && !mixLimit ){
+					percent += VCV_PERCENT_INCREMENT;
+					mixValve.setPercent(percent);
+				}
+				press = pressSensor.readPressure();
+				flow = flowMeter.readFlow();
+			}
+			t = abs(ti - ((millis()-t)/2)); // **
+			t += millis();
+			mixLimit = true;
+
+			press = pressSensor.readPressure();
+			while( press < c->plim && (t > millis()) ){
+				press = pressSensor.readPressure();
+			}
+			solValve.close();
+
+			expMembrane.open();
+			press = pressSensor.readPressure();
+			while( press > c->peep ){
+				press = pressSensor.readPressure();
+			}
+
+			expMembrane.close();
+			delay(c->e_ms);
 		}
 	}
-
 }
 
 

@@ -33,6 +33,7 @@ public:
 	AirValve();
 	virtual ~AirValve();
 	void setPressure(double value);
+	void setPercent(double value);
 };
 
 #endif /* AIRVALVE_H_ */

@@ -49,3 +49,15 @@ void MixValve::setPressure(double value) {
 	last_value = _value;
 #endif
 }
+
+void MixValve::setPercent(double value) {
+#ifdef WRAPPER_AccelStepper
+	setMotorPosition((value*STEPPER_MAX_VALUE)/100);
+#endif
+#ifdef WRAPPER_Stepper
+	long _value = ((value*STEPPER_MAX_VALUE)/NETWORK_AIR_PRESSURE);
+	setMotorPosition(_value-last_value);
+	last_value = _value;
+#endif
+}
+

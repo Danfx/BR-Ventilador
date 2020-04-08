@@ -38,6 +38,7 @@
 
 #define PIN_BUTTON_START				19
 #define PIN_MODE_1						20
+#define PIN_MODE_2						21
 
 //
 // Display (Digital I/O)
@@ -60,7 +61,7 @@
 #ifdef WRAPPER_AccelStepper
 //#define STEPPER_ONE_STEP				400
 //#define STEPPER_MAX_VALUE				(STEPPER_ONE_STEP*7) // o registro da no máximo 7 voltas
-#define STEPPER_MAX_VALUE				600
+#define STEPPER_MAX_VALUE				465
 #define STEPPER_MAX_ACCELERATION		50
 #define STEPPER_MAX_SPEED				200
 #endif

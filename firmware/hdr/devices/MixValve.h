@@ -33,6 +33,7 @@ public:
 	MixValve();
 	virtual ~MixValve();
 	void setPressure(double value);
+	void setPercent(double value);
 };
 
 #endif /* DEVICES_MIXVALVE_H_ */
